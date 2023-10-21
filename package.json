@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "In this assignment, your task is to create a real-time chat application using Node.js, Express.js, TypeScript, and Socket.io. This chat application will enable users to communicate with each other by sending text messages and sharing images in real-time within a chat room.",
   "main": "server.js",
-  "type": "module",
+  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon"
@@ -12,7 +12,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "mongoose": "^7.6.3"
+    "js-sha256": "^0.10.1",
+    "jwt-then": "^1.0.1",
+    "mongoose": "^7.6.3",
+    "socket.io": "^4.7.2"
   }
 }

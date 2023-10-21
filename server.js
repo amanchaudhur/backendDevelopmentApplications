@@ -1,27 +1,27 @@
 require("dotenv").config();
 
-import { connect, connection, model } from "mongoose";
-connect(process.env.DATABASE, {
+const mongoose = require("mongoose");
+mongoose.connect(process.env.DATABASE, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 });
 
-connection.on("error", (err) => {
+mongoose.connection.on("error", (err) => {
   console.log("Mongoose Connection ERROR: " + err.message);
 });
 
-connection.once("open", () => {
+mongoose.connection.once("open", () => {
   console.log("MongoDB Connected!");
 });
 
 //Bring in the models
-import "./models/User";
-import "./models/Chatroom";
-import "./models/Message";
+require("./models/User");
+require("./models/Chatroom");
+require("./models/Message");
 
-import { listen } from "./app";
+const app = require("./app");
 
-const server = listen(8000, () => {
+const server = app.listen(8000, () => {
   console.log("Server listening on port 8000");
 });
 
@@ -34,15 +34,15 @@ const io = require("socket.io")(server, {
   }
 });
 
-import { verify } from "jwt-then";
+const jwt = require("jwt-then");
 
-const Message = model("Message");
-const User = model("User");
+const Message = mongoose.model("Message");
+const User = mongoose.model("User");
 
 io.use(async (socket, next) => {
   try {
     const token = socket.handshake.query.token;
-    const payload = await verify(token, process.env.SECRET);
+    const payload = await jwt.verify(token, process.env.SECRET);
     socket.userId = payload.id;
     next();
   } catch (err) {}
@@ -57,7 +57,7 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", ({ chatroomId }) => {
     socket.join(chatroomId);
-    console.log("A user joined chatroom: " + chatroomId);
+    console.log(userId+"joined chatroom: " + chatroomId);
   });
 
   socket.on("leaveRoom", ({ chatroomId }) => {

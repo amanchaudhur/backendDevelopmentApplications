@@ -1,25 +1,24 @@
-import express from "express";
-import bodyParser from "body-parser";
-import mongoose from "mongoose";
-import cors from "cors";
-import dotenv from 'dotenv';
+const express = require("express");
+const app = express();
 
-import postRoutes from "./routes/post.js";
-import userRoutes from "./routes/users.js"
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const app =express();
-dotenv.config();
+//Setup Cross Origin
+app.use(require("cors")());
 
+//Bring in the routes
+app.use("/user", require("./routes/user"));
+app.use("/chatroom", require("./routes/chatroom"));
 
-app.use(bodyParser.json({limit:"30mb", extended : true}));
-app.use(bodyParser.urlencoded({limit:"30mb", extended : true}));
-app.use(cors());
-app.use('/posts',postRoutes);
-app.use('/user',userRoutes);
+//Setup Error Handlers
+const errorHandlers = require("./handlers/errorHandlers");
+app.use(errorHandlers.notFound);
+app.use(errorHandlers.mongoseErrors);
+if (process.env.ENV === "DEVELOPMENT") {
+  app.use(errorHandlers.developmentErrors);
+} else {
+  app.use(errorHandlers.productionErrors);
+}
 
-
-const PORT = process.env.PORT || 5000;
-
-mongoose.connect(process.env.CONNECTION_URL,{useNewUrlParser:true , useUnifiedTopology :true})
-.then(() => app.listen(PORT,()=>console.log(`Server running on port:${PORT}`)))
-.catch((error)=>console.log(error.message));
+module.exports = app;
